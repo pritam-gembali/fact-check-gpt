@@ -1,0 +1,3 @@
+google-search-results
+streamlit
+beautifulsoup4
