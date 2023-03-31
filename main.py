@@ -4,8 +4,16 @@ from utils import *
 
 url = st.text_area("Enter url","")
 
-bodyAndText = getBodyAndText(url)
+if st.button("Submit"):
 
+    # Get body and title of input article
+    bodyAndText = getBodyAndText(url)
+
+
+    # Get summary of the article
+    summaryOfInput = parse_with_gpt(bodyAndText["title"]+"\n"+bodyAndText["article_text"])
+
+    st.write(summaryOfInput)
 
 # params = {
 #   "q": query,
@@ -23,3 +31,10 @@ bodyAndText = getBodyAndText(url)
     # for idx in results:
 
     #     st.write(results[idx]['title'])
+# if st.button("Submit"):
+#     search = GoogleSearch(params)
+#     results = search.get_dict()['organic_results']
+#     # st.json(results)
+#     for idx in results:
+#         print(idx)
+#         st.write(idx['snippet'])
