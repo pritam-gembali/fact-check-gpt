@@ -8,14 +8,18 @@ from serpapi import GoogleSearch
 
 from langchain import PromptTemplate, LLMChain
 from langchain.llms import OpenAI
+from selenium import webdriver
 
 llm = OpenAI(model_name="text-davinci-003")
 
 def getBodyAndText(url):
 
     agent = {"User-Agent":'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'}
-    response = requests.get(url, headers=agent)
-    soup = BeautifulSoup(response.content, "html.parser")
+    # response = requests.get(url, headers=agent)
+    driver = webdriver.Firefox()
+    driver.get(url)
+    html = driver.page_source
+    soup = BeautifulSoup(html)
     
     title = soup.find("title").text
 

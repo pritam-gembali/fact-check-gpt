@@ -1,3 +1,6 @@
 google-search-results
 streamlit
 beautifulsoup4
+selenium
+openai
+langchain
