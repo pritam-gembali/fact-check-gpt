@@ -29,16 +29,19 @@ if st.button("Submit"):
     search = GoogleSearch(params)
     results = search.get_dict()['organic_results']
     # st.json(results)
-    st.write("Relevant snippets")
+    st.write("Relevant articles")
     relevant_urls = {}
     for idx in results:
-        print(idx)
         matchedBodyAndText = getBodyAndText(idx["link"])
         idx["article_text"] = matchedBodyAndText["article_text"]
         idx["title"] = matchedBodyAndText["title"]
-        verdict = classifyOpposing(bodyAndText["article_text"], matchedBodyAndText["article_text"])
-
-        st.write(matchedBodyAndText["article_text"],verdict)
+        hitSummary = summarise_page(idx["title"],idx["article_text"])
+        verdict = classifyOpposing(summaryOfInput,hitSummary)
+        st.write("-----------------------")
+        st.write(idx["link"])
+        st.write(hitSummary)
+        st.write(verdict)
+        st.write("------------------------")
 
     # Classify for and against
 

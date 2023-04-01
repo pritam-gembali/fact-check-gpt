@@ -3,6 +3,7 @@ import requests
 import re
 import openai
 import streamlit as st
+import time
 from serpapi import GoogleSearch
 
 from langchain import PromptTemplate, LLMChain
@@ -12,12 +13,10 @@ llm = OpenAI(model_name="text-davinci-003")
 
 def getBodyAndText(url):
 
-    response = requests.get(url)
-    st.write(url)
-
+    agent = {"User-Agent":'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'}
+    response = requests.get(url, headers=agent)
     soup = BeautifulSoup(response.content, "html.parser")
     
-    st.write(soup)
     title = soup.find("title").text
 
     # Find the article body using regular expressions and BeautifulSoup
@@ -75,10 +74,10 @@ def summarise_page(title, body):
 
 def classifyOpposing(claim, searchResult):
     template = """
-                Classify whether the claim and the searchResult
+                Check how aligned are the claim and searchResult.
                 claim: {claim}
                 searchResult: {searchResult}
-                Give me a yes/no in a json format with "verdict" as the key.
+                Give me a score in between 1 to 10.
                 """
     # st.write(title, body)
 
