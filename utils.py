@@ -13,9 +13,11 @@ llm = OpenAI(model_name="text-davinci-003")
 def getBodyAndText(url):
 
     response = requests.get(url)
+    st.write(url)
 
     soup = BeautifulSoup(response.content, "html.parser")
     
+    st.write(soup)
     title = soup.find("title").text
 
     # Find the article body using regular expressions and BeautifulSoup
@@ -71,6 +73,26 @@ def summarise_page(title, body):
     
     return llm_chain.run(title=title,body=body)
 
+def classifyOpposing(claim, searchResult):
+    template = """
+                Classify whether the claim and the searchResult
+                claim: {claim}
+                searchResult: {searchResult}
+                Give me a yes/no in a json format with "verdict" as the key.
+                """
+    # st.write(title, body)
+
+    prompt = PromptTemplate(
+        template=template,
+	    input_variables=['claim','searchResult']
+    )
+
+    llm_chain = LLMChain( 
+			prompt=prompt,
+	  		llm=llm 
+		)
+    
+    return llm_chain.run(claim=claim,searchResult=searchResult)
 
 
 
