@@ -2,7 +2,13 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import openai
+import streamlit as st
+from serpapi import GoogleSearch
 
+from langchain import PromptTemplate, LLMChain
+from langchain.llms import OpenAI
+
+llm = OpenAI(model_name="text-davinci-003")
 
 def getBodyAndText(url):
 
@@ -36,7 +42,7 @@ def parse_with_gpt (input_text: str, max_tokens: int = 1500) -> dict:
 	"""
 
 	results = openai.ChatCompletion.create(
-		model= "gpt-3.5-turbo", 
+		model= "gpt-4",#gpt-3.5-turbo", 
 		messages=[{
 			"role": "user", 
 			"content": input_text
@@ -44,6 +50,27 @@ def parse_with_gpt (input_text: str, max_tokens: int = 1500) -> dict:
 		temperature=0.0,
 	)
 	return results['choices'][-1]['message']['content']
+
+def summarise_page(title, body):
+    template = """
+                Summarise
+                stick to title. Ttile: {title}
+                Content: {body}
+                """
+    # st.write(title, body)
+
+    prompt = PromptTemplate(
+        template=template,
+	    input_variables=['title','body']
+    )
+
+    llm_chain = LLMChain( 
+			prompt=prompt,
+	  		llm=llm 
+		)
+    
+    return llm_chain.run(title=title,body=body)
+
 
 
 
