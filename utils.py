@@ -1,3 +1,4 @@
+
 from bs4 import BeautifulSoup
 import requests
 import re
@@ -8,18 +9,15 @@ from serpapi import GoogleSearch
 
 from langchain import PromptTemplate, LLMChain
 from langchain.llms import OpenAI
-from selenium import webdriver
 
 llm = OpenAI(model_name="text-davinci-003")
 
 def getBodyAndText(url):
 
     agent = {"User-Agent":'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'}
-    # response = requests.get(url, headers=agent)
-    driver = webdriver.Firefox()
-    driver.get(url)
-    html = driver.page_source
-    soup = BeautifulSoup(html)
+    response = requests.get(url, headers=agent)
+    content = response.text
+    soup = BeautifulSoup(content, 'html.parser')
     
     title = soup.find("title").text
 
@@ -98,4 +96,85 @@ def classifyOpposing(claim, searchResult):
     return llm_chain.run(claim=claim,searchResult=searchResult)
 
 
+def getCredibility(inputSummary):
+    template = """
+                For the following article extract details in JSON format:
+                {inputSummary}
 
+                Find % values for these fields
+                - % of subjective text
+                - % of statements by others quoted
+                - % of sensationalisation
+                - % of exaggeration
+                                
+                Also provide one sample for each category as a separate list within the JSON
+
+                Extracted JSON:
+                """
+    prompt = PromptTemplate(
+        template=template,
+        input_variables=['inputSummary']
+    )
+
+    llm_chain = LLMChain(
+        prompt=prompt,
+        llm=llm
+    )
+
+    return llm_chain.run(inputSummary)
+
+def getOpposingSummary(inputSummary):
+    template = """
+                Can you analyse the following summary and suggest a string to search for opposing views on google?
+                
+                summary: {inputSummary}
+                String to be searched on google:
+                """
+    # st.write(title, body)
+
+    prompt = PromptTemplate(
+        template=template,
+        input_variables=['inputSummary']
+    )
+
+    llm_chain = LLMChain(
+        prompt=prompt,
+        llm=llm
+    )
+
+    return llm_chain.run(inputSummary)
+
+def getCredibility_2(inputSummary):
+    template = """
+                For the following article extract details in JSON format:
+                {inputSummary}
+
+                Fields to be extracted:
+                - % of facts
+                - % of opinion
+                - % of statements by others quoted
+                - % of sensationalisation
+                - % of exaggeration
+                - % of embellishment
+                                
+                Also provide one sample for each category.
+
+                Extracted JSON:
+                """
+    # st.write(title, body)
+
+    prompt = PromptTemplate(
+        template=template,
+        input_variables=['inputSummary']
+    )
+
+    llm_chain = LLMChain(
+        prompt=prompt,
+        llm=llm
+    )
+
+    return llm_chain.run(inputSummary)
+
+def fix_json(json_text):
+    corrected = parse_with_gpt(json_text+'\nFix JSON. Retain all keys. \nExample \n---\n{"SGST": 9,574.25} -> {"SGST": "9,574.25"}\n---')
+    return corrected
